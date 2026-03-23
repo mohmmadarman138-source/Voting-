@@ -1,43 +1,153 @@
-# Simple workflow for deploying static content to GitHub Pages
-name: Deploy static content to Pages
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Global Voting Poll</title>
 
-on:
-  # Runs on pushes targeting the default branch
-  push:
-    branches: ["main"]
+<style>
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #020617;
+  color: white;
+  text-align: center;
+}
 
-  # Allows you to run this workflow manually from the Actions tab
-  workflow_dispatch:
+.container {
+  max-width: 500px;
+  margin: auto;
+  padding: 20px;
+}
 
-# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
-permissions:
-  contents: read
-  pages: write
-  id-token: write
+.banner {
+  background: red;
+  padding: 10px;
+  margin-bottom: 10px;
+  animation: blink 1s infinite;
+}
 
-# Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
-# However, do NOT cancel in-progress runs as we want to allow these production deployments to complete.
-concurrency:
-  group: "pages"
-  cancel-in-progress: false
+@keyframes blink {
+  50% { opacity: 0.5; }
+}
 
-jobs:
-  # Single deploy job since we're just deploying
-  deploy:
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      - name: Setup Pages
-        uses: actions/configure-pages@v5
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          # Upload entire repository
-          path: '.'
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+.card {
+  background: #0f172a;
+  padding: 20px;
+  margin: 15px 0;
+  border-radius: 15px;
+  box-shadow: 0 0 15px rgba(0,255,0,0.2);
+}
+
+button {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 16px;
+  background: #22c55e;
+  color: white;
+}
+
+button:disabled {
+  background: gray;
+  cursor: not-allowed;
+}
+
+button:hover {
+  transform: scale(1.05);
+}
+
+.progress {
+  height: 10px;
+  background: #1e293b;
+  border-radius: 10px;
+  overflow: hidden;
+  margin-top: 10px;
+}
+
+.progress-bar {
+  height: 100%;
+  background: #22c55e;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<div class="banner">🚨 LIVE RESULTS UPDATING NOW</div>
+
+<h1>🌍 LIVE GLOBAL POLL</h1>
+<p><b>Where do you stand?</b></p>
+<p>The world is watching. Your opinion matters.</p>
+<p style="color: #22c55e;">🔥 Thousands have already voted</p>
+
+<div class="card">
+  <h2>🇮🇷 Iran</h2>
+  <p id="iranVotes">0</p>
+  <button id="iranBtn" onclick="vote('iran')">VOTE</button>
+</div>
+
+<div class="card">
+  <h2>🇮🇱 Israel</h2>
+  <p id="israelVotes">0</p>
+  <button id="israelBtn" onclick="vote('israel')">VOTE</button>
+</div>
+
+<div class="progress">
+  <div id="progressBar" class="progress-bar"></div>
+</div>
+
+<p id="message"></p>
+
+</div>
+
+<script>
+let iranVotes = localStorage.getItem("iranVotes") ? parseInt(localStorage.getItem("iranVotes")) : 5132;
+let israelVotes = localStorage.getItem("israelVotes") ? parseInt(localStorage.getItem("israelVotes")) : 2314;
+
+let voted = localStorage.getItem("voted");
+
+function updateUI() {
+  document.getElementById("iranVotes").innerText = iranVotes;
+  document.getElementById("israelVotes").innerText = israelVotes;
+
+  let total = iranVotes + israelVotes;
+  let percent = (iranVotes / total) * 100;
+
+  document.getElementById("progressBar").style.width = percent + "%";
+
+  // अगर पहले वोट कर चुका है तो button disable
+  if (voted) {
+    document.getElementById("iranBtn").disabled = true;
+    document.getElementById("israelBtn").disabled = true;
+  }
+}
+
+function vote(country) {
+  if (voted) {
+    document.getElementById("message").innerText = "⚠️ You have already voted.";
+    return;
+  }
+
+  if (country === "iran") iranVotes++;
+  if (country === "israel") israelVotes++;
+
+  localStorage.setItem("iranVotes", iranVotes);
+  localStorage.setItem("israelVotes", israelVotes);
+  localStorage.setItem("voted", true);
+
+  document.getElementById("message").innerText = "✅ Your vote has been counted!";
+
+  voted = true;
+  updateUI();
+}
+
+updateUI();
+</script>
+
+</body>
+</html>
